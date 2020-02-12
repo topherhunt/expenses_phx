@@ -2,7 +2,6 @@ defmodule Expenses.Data.User do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  import ExpensesWeb.Gettext
   alias Expenses.Data
 
   schema "users" do
@@ -55,7 +54,7 @@ defmodule Expenses.Data.User do
 
   defp require_password(changeset) do
     if !get_field(changeset, :password_hash) && !get_change(changeset, :password) do
-      add_error(changeset, :password, dgettext("errors", "can't be blank"))
+      add_error(changeset, :password, "can't be blank")
     else
       changeset
     end
@@ -75,7 +74,7 @@ defmodule Expenses.Data.User do
     password_confirmation = get_change(changeset, :password_confirmation)
 
     if password != nil && password != password_confirmation do
-      add_error(changeset, :password_confirmation, dgettext("errors", "doesn't match password"))
+      add_error(changeset, :password_confirmation, "doesn't match password")
     else
       changeset
     end
@@ -90,7 +89,7 @@ defmodule Expenses.Data.User do
       current_password = get_change(changeset, :current_password)
       current_password_correct = Data.password_correct?(user, current_password)
       if !current_password_correct do
-        add_error(changeset, :current_password, dgettext("errors", "is incorrect"))
+        add_error(changeset, :current_password, "is incorrect")
       else
         changeset
       end

@@ -9,8 +9,13 @@ defmodule ExpensesWeb.IntegrationHelpers do
   #
 
   def login(_conn, user) do
-    token = Expenses.Data.get_login_token(user.email)
-    navigate_to Routes.auth_url(ExpensesWeb.Endpoint, :confirm, token: token)
+    navigate_to Routes.auth_url(ExpensesWeb.Endpoint, :login)
+    find_element("#user_email") |> fill_field(user.email)
+    find_element("#user_password") |> fill_field("password")
+    find_element(~s(button[type="submit"])) |> click()
+    assert_text "Welcome back!"
+    assert_text "My group tests"
+    assert_text "Log out"
   end
 
   def login_as_new_user(conn, params \\ %{}) do
