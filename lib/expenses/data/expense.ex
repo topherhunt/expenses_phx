@@ -25,11 +25,12 @@ defmodule Expenses.Data.Expense do
   # Filters
   #
 
-  def apply_filters(starting_query, filters) do
-    Enum.reduce(filters, starting_query, fn {k, v}, query -> filter(query, k, v) end)
+  # e.g. Expense |> Expense.filter(date_gte: params["date"]) |> Repo.first()
+  def filter(orig_query, filters) when is_list(filters) do
+    Enum.reduce(filters, orig_query, fn {key, val}, query -> f(query, key, val) end)
   end
 
-  def filter(query, :id, id), do: where(query, [t], t.id == ^id)
-  def filter(query, :date_gte, date), do: where(query, [t], t.date >= ^date)
-  def filter(query, :date_lte, date), do: where(query, [t], t.date <= ^date)
+  defp f(q, :id, id), do: where(q, [t], t.id == ^id)
+  defp f(q, :date_gte, date), do: where(q, [t], t.date >= ^date)
+  defp f(q, :date_lte, date), do: where(q, [t], t.date <= ^date)
 end

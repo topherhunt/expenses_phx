@@ -50,6 +50,7 @@ defmodule Expenses.MixProject do
       {:nanoid, "~> 2.0"},
       {:rollbax, "~> 0.11"},
       {:timex, "~> 3.6.1"},
+      {:phoenix_live_view, "~> 0.6.0"},
       {:hound, "~> 1.0", only: :test}
     ]
   end

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
+    <%= csrf_meta_tag() # LiveView requires this %>
     <title>Grassflog</title>
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>">
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>

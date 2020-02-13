@@ -22,6 +22,7 @@ defmodule ExpensesWeb do
       use Phoenix.Controller, namespace: ExpensesWeb
 
       import Plug.Conn
+      import Phoenix.LiveView.Controller
       import ExpensesWeb.Gettext
       import ExpensesWeb.SentryPlugs
       alias ExpensesWeb.Router.Helpers, as: Routes
@@ -40,6 +41,7 @@ defmodule ExpensesWeb do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
+      import Phoenix.LiveView.Helpers
       import ExpensesWeb.ErrorHelpers
       import ExpensesWeb.Gettext
       import ExpensesWeb.FormHelpers
@@ -52,6 +54,7 @@ defmodule ExpensesWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import Phoenix.LiveView.Router
     end
   end
 

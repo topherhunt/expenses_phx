@@ -7,6 +7,7 @@ defmodule ExpensesWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_flash
+    plug Phoenix.LiveView.Flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :load_current_user
@@ -42,6 +43,8 @@ defmodule ExpensesWeb.Router do
     get "/account/edit", UserController, :edit
     patch "/account/update", UserController, :update
     patch "/account/update_email", UserController, :update_email
+
+    get "/main", MainController, :main
   end
 
   # Other scopes may use custom stacks.

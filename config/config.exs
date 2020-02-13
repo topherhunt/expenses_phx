@@ -30,7 +30,8 @@ config :expenses, ExpensesWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: H.env!("SECRET_KEY_BASE"),
   render_errors: [view: ExpensesWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Expenses.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: Expenses.PubSub, adapter: Phoenix.PubSub.PG2],
+  live_view: [signing_salt: H.env!("SECRET_KEY_BASE")]
 
 # Configures Elixir's Logger
 config :logger, :console,
