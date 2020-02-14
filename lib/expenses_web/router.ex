@@ -17,13 +17,13 @@ defmodule ExpensesWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # In dev, preview all "sent" emails at localhost:4000/sent_emails
+  if Mix.env == :dev do
+    forward "/sent_emails", Bamboo.SentEmailViewerPlug
+  end
+
   scope "/", ExpensesWeb do
     pipe_through :browser
-
-    # In dev, preview all "sent" emails at localhost:4000/sent_emails
-    if Mix.env == :dev do
-      forward "/sent_emails", Bamboo.SentEmailViewerPlug
-    end
 
     get "/", PageController, :index
 
@@ -44,7 +44,8 @@ defmodule ExpensesWeb.Router do
     patch "/account/update", UserController, :update
     patch "/account/update_email", UserController, :update_email
 
-    get "/main", MainController, :main
+    get "/expenses/live", ExpenseController, :index_live
+    get "/expenses/old", ExpenseController, :index_old
   end
 
   # Other scopes may use custom stacks.

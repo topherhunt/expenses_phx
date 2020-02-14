@@ -1,22 +1,26 @@
-defmodule ExpensesWeb.MainLive do
+defmodule ExpensesWeb.ExpenseIndexLive do
   use Phoenix.LiveView
+  import Ecto.Query
   alias Expenses.Repo
   alias Expenses.Data
   alias Expenses.Data.Expense
 
   def render(assigns) do
     # Phoenix.View.render(
-    ExpensesWeb.MainView.render("main.html", assigns)
+    ExpensesWeb.ExpenseView.render("index.html", assigns)
   end
 
   def mount(_params, %{"user_id" => user_id} = _session, socket) do
-    current_user = Data.get_user!(user_id)
-    default_filters = %{"date_gte" => Date.today() |> Timex.beginning_of_year()}
+    current_user = Repo.get!(Data.User, user_id)
+    tags = Ecto.assoc(current_user, :tags) |> order_by([t], t.name) |> Repo.all()
+    default_filters = %{"date_gte" => Date.utc_today() |> Timex.beginning_of_year()}
 
     socket = assign(socket,
       current_user: current_user,
       filters: default_filters,
-      new_expense_chg: new_expense_chg()
+      tags: tags,
+      new_changeset: new_changeset(%{"date" => Date.utc_today()}),
+      newest_expense_id: nil
     )
 
     socket = load_expenses(socket)
@@ -32,14 +36,16 @@ defmodule ExpensesWeb.MainLive do
     expense_params = Map.put(expense_params, "user_id", socket.assigns.current_user.id)
     case Data.insert_expense(expense_params) do
       {:ok, expense} ->
+
         socket =
           socket
-          |> assign(new_expense_chg: new_expense_chg(), newest_expense_id: expense.id)
-          |> load_expenses()
+          |> assign(expenses: add_expense(socket.assigns.expenses, expense))
+          |> assign(newest_expense_id: expense.id)
+          |> assign(new_changeset: new_changeset(expense_params))
         {:noreply, socket}
 
       {:error, changeset} ->
-        socket = assign(socket, new_expense_chg: changeset)
+        socket = assign(socket, new_changeset: changeset, newest_expense_id: nil)
         {:noreply, socket}
     end
   end
@@ -57,7 +63,10 @@ defmodule ExpensesWeb.MainLive do
   # Internal
   #
 
-  defp new_expense_chg(), do: Data.expense_changeset(%Expense{}, %{})
+  defp new_changeset(params) do
+    params = Map.take(params, ["date", "orig_currency"])
+    Data.expense_changeset(%Expense{}, params)
+  end
 
   defp load_expenses(socket) do
     user = socket.assigns.current_user
@@ -67,8 +76,13 @@ defmodule ExpensesWeb.MainLive do
       Expense
       |> Expense.filter(user: user)
       |> Expense.filter(filters)
+      |> order_by([e], [e.date, e.description])
       |> Repo.all()
 
     assign(socket, expenses: expenses)
+  end
+
+  defp add_expense(expenses, expense) do
+    [expense | expenses] |> Enum.sort(& Date.compare(&1.date, &2.date) in [:lt, :eq])
   end
 end

@@ -1,7 +1,7 @@
 defmodule Expenses.Data do
   import Ecto.Query
   alias Expenses.Repo
-  alias Expenses.Data.{User, Nonce, LoginTry}
+  alias Expenses.Data.{User, Nonce, LoginTry, Expense}
 
   #
   # Users
@@ -120,4 +120,15 @@ defmodule Expenses.Data do
     |> where([t], t.email == ^email)
     |> Repo.delete_all()
   end
+
+  #
+  # Expenses
+  #
+
+  def insert_expense(params), do: expense_changeset(%Expense{}, params) |> Repo.insert()
+  def insert_expense!(params), do: expense_changeset(%Expense{}, params) |> Repo.insert!()
+  def update_expense(exp, params), do: expense_changeset(exp, params) |> Repo.update()
+  def update_expense!(exp, params), do: expense_changeset(exp, params) |> Repo.update!()
+  def delete_expense!(exp), do: Repo.delete!(exp)
+  def expense_changeset(expense, params \\ %{}), do: Expense.changeset(expense, params)
 end

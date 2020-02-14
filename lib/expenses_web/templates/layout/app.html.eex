@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <%= csrf_meta_tag() # LiveView requires this %>
-    <title>Grassflog</title>
+    <title>Expenses</title>
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>">
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>

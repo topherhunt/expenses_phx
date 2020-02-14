@@ -1,0 +1,99 @@
+<div style="position: relative;">
+  <div style="position: absolute; top: 0px; left: 0px; height: 100%; width: 50%;">
+    <%= f = form_for @new_changeset, "#", [phx_submit: "create_expense"] %>
+      <h3>Add an expense</h3>
+      <table>
+        <tr>
+          <td><%= label f, :description, "Who & what?" %></td>
+          <td>
+            <%= text_input f, :description, class: "form-control", style: "min-width: 300px;", phx_hook: "NewExpenseDescription" %>
+            <%= error_tag f, :description %>
+          </td>
+        </tr>
+        <tr>
+          <td><%= label f, :date %></td>
+          <td>
+            <%= date_input f, :date, class: "form-control" %>
+            <%= error_tag f, :date %>
+          </td>
+        </tr>
+        <tr>
+          <td><%= label f, :orig_amount, "Amount" %></td>
+          <td>
+            <%= text_input f, :orig_amount, class: "form-control" %>
+            <%= error_tag f, :orig_amount %>
+          </td>
+        </tr>
+        <tr>
+          <td><%= label f, :orig_currency %></td>
+          <td>
+            <%= select f, :orig_currency, [{"EUR", "eur"}, {"USD", "usd"}], selected: "eur", class: "form-control" %>
+            <%= error_tag f, :orig_currency %>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><%= submit "Add", class: "btn btn-primary" %></td>
+        </tr>
+      </table>
+    </form>
+
+    <hr>
+
+    <h3>Filters</h3>
+    <%= f = form_for :filters, "#", [phx_submit: "filter_expenses", id: "filter-form"] %>
+      <table>
+        <tr>
+          <td><%= label f, :date_gte, "From date" %></td>
+          <td><%= date_input f, :date_gte, class: "form-control", value: @filters["date_gte"] %></td>
+        </tr>
+        <tr>
+          <td><%= label f, :date_lte, "Until date" %></td>
+          <td><%= date_input f, :date_lte, class: "form-control", value: @filters["date_lte"] %></td>
+        </tr>
+        <tr>
+          <td><%= label f, :amount_gte, "Min amount (EUR)" %></td>
+          <td><%= text_input f, :amount_gte, class: "form-control", value: @filters["amount_gte"], placeholder: "0.00" %></td>
+        </tr>
+        <tr>
+          <td><%= label f, :amount_lte, "Max amount (EUR)" %></td>
+          <td><%= text_input f, :amount_lte, class: "form-control", value: @filters["amount_lte"], placeholder: "1000.00" %></td>
+        </tr>
+        <tr>
+          <td><%= label f, :description_contains, "Vendor / description" %></td>
+          <td><%= text_input f, :description_contains, class: "form-control", value: @filters["description_contains"] %></td>
+        </tr>
+        <tr>
+          <td><%= label f, :with_tags, "Has tags" %></td>
+          <td><%= multiple_select f, :with_tags, Enum.map(@tags, & {&1.name, &1.id}), selected: @filters["with_tags"] || [], class: "form-control" %></td>
+        </tr>
+        <tr>
+          <td><%= label f, :without_tags, "Does not have tags" %></td>
+          <td><%= multiple_select f, :without_tags, Enum.map(@tags, & {&1.name, &1.id}), selected: @filters["without_tags"] || [], class: "form-control" %></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><%= submit "Filter", class: "btn btn-primary" %></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+
+  <div style="padding-left: 50%;">
+    <table class="table expenses-list">
+      <tbody>
+        <%= for expense <- @expenses do %>
+          <% new_class = if @newest_expense_id == expense.id, do: "expense-row--new", else: "" %>
+          <%# Remember, any phx-hook elements must have an ID. %>
+          <tr id="expense-row-<%= expense.id %>" class="expense-row <%= new_class %>" phx-hook="ExpenseRow">
+            <td><%= expense.date %></td>
+            <td><%= expense.description %></td>
+            <td><%= expense.amount_eur %></td>
+            <td><%= expense.amount_eur |> Money.eur_to_usd() %></td>
+            <td>action links</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

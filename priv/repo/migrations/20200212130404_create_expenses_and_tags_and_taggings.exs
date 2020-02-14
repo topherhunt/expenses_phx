@@ -6,7 +6,9 @@ defmodule Expenses.Repo.Migrations.CreateExpensesAndTagsAndTaggings do
       add :user_id, references(:users, on_delete: :delete_all)
       add :date, :date, null: false
       add :description, :text, null: false
-      add :amount_eur_cents, :integer, null: false
+      add :orig_currency, :text, null: false
+      add :orig_amount, :float, null: false
+      add :amount_eur, :float, null: false
       timestamps()
     end
 

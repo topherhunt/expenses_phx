@@ -14,6 +14,8 @@ defmodule Expenses.Data.User do
     field :confirmed_at, :utc_datetime
     field :last_visit_date, :date
     timestamps()
+
+    has_many :tags, Data.Tag
   end
 
   def admin_changeset(record, params \\ %{}) do

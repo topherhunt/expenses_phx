@@ -46,6 +46,7 @@ defmodule ExpensesWeb do
       import ExpensesWeb.Gettext
       import ExpensesWeb.FormHelpers
       alias ExpensesWeb.Router.Helpers, as: Routes
+      alias Expenses.Money
     end
   end
 
