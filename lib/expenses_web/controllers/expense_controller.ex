@@ -1,8 +1,11 @@
 defmodule ExpensesWeb.ExpenseController do
   use ExpensesWeb, :controller
 
+  plug :must_be_logged_in
+
   def index_live(conn, _params) do
-    live_render(conn, ExpensesWeb.ExpenseIndexLive)
+    user = conn.assigns.current_user
+    live_render(conn, ExpensesWeb.ExpenseIndexLive, session: %{"user_id" => user.id})
   end
 
   # def index_old(conn, params) do

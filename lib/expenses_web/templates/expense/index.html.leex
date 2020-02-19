@@ -1,5 +1,5 @@
 <div style="position: relative;">
-  <div style="position: absolute; top: 0px; left: 0px; height: 100%; width: 50%;">
+  <div style="position: absolute; top: 0px; left: 0px; width: 40%; overflow: auto;">
     <%= f = form_for @new_changeset, "#", [phx_submit: "create_expense"] %>
       <h3>Add an expense</h3>
       <table>
@@ -20,15 +20,13 @@
         <tr>
           <td><%= label f, :orig_amount, "Amount" %></td>
           <td>
-            <%= text_input f, :orig_amount, class: "form-control" %>
-            <%= error_tag f, :orig_amount %>
-          </td>
-        </tr>
-        <tr>
-          <td><%= label f, :orig_currency %></td>
-          <td>
-            <%= select f, :orig_currency, [{"EUR", "eur"}, {"USD", "usd"}], selected: "eur", class: "form-control" %>
-            <%= error_tag f, :orig_currency %>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <%= select f, :orig_currency, [{"EUR €", "eur"}, {"USD $", "usd"}], selected: "eur", class: "form-control mr-2", style: "width: 5em;" %>
+              </div>
+              <%= text_input f, :orig_amount, class: "form-control", placeholder: "10.00" %>
+            </div>
+            <%= error_tag f, :orig_amount_cents %>
           </td>
         </tr>
         <tr>
@@ -41,55 +39,104 @@
     <hr>
 
     <h3>Filters</h3>
-    <%= f = form_for :filters, "#", [phx_submit: "filter_expenses", id: "filter-form"] %>
+    <%= f = form_for :filters, "#", [phx_change: "filter_expenses", phx_submit: "filter_expenses", id: "filter-form"] %>
       <table>
         <tr>
+          <th>Date</th>
+        </tr>
+        <tr>
+          <td>
+            <div class="input-group">
+              <div class="input-group-prepend"><span class="input-group-text">From</span></div>
+              <%= text_input f, :date_gte, class: "form-control", value: @filters["date_gte"], placeholder: Date.utc_today() %>
+            </div>
+          </td>
+          <td>
+            <div class="input-group">
+              <div class="input-group-prepend"><span class="input-group-text">To</span></div>
+              <%= text_input f, :date_gte, class: "form-control", value: @filters["date_lte"], placeholder: Date.utc_today() %>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th>Amount</th>
+        </tr>
+        <tr>
+          <td>
+            <div class="input-group">
+              <div class="input-group-prepend"><span class="input-group-text">Min €</span></div>
+              <%= text_input f, :amount_gte, class: "form-control", value: @filters["amount_gte"], placeholder: "0.00" %>
+            </div>
+          </td>
+          <td>
+            <div class="input-group">
+              <div class="input-group-prepend"><span class="input-group-text">Max €</span></div>
+              <%= text_input f, :amount_lte, class: "form-control", value: @filters["amount_lte"], placeholder: "1000.00" %>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th colspan="2">Vendor / description</th>
+        </tr>
+        <tr>
+          <td colspan="2"><%= text_input f, :description_contains, class: "form-control", value: @filters["description_contains"] %></td>
+        </tr>
+        <!-- <tr>
           <td><%= label f, :date_gte, "From date" %></td>
           <td><%= date_input f, :date_gte, class: "form-control", value: @filters["date_gte"] %></td>
         </tr>
         <tr>
           <td><%= label f, :date_lte, "Until date" %></td>
           <td><%= date_input f, :date_lte, class: "form-control", value: @filters["date_lte"] %></td>
-        </tr>
-        <tr>
+        </tr> -->
+        <!-- <tr>
           <td><%= label f, :amount_gte, "Min amount (EUR)" %></td>
           <td><%= text_input f, :amount_gte, class: "form-control", value: @filters["amount_gte"], placeholder: "0.00" %></td>
         </tr>
         <tr>
           <td><%= label f, :amount_lte, "Max amount (EUR)" %></td>
           <td><%= text_input f, :amount_lte, class: "form-control", value: @filters["amount_lte"], placeholder: "1000.00" %></td>
-        </tr>
-        <tr>
-          <td><%= label f, :description_contains, "Vendor / description" %></td>
-          <td><%= text_input f, :description_contains, class: "form-control", value: @filters["description_contains"] %></td>
-        </tr>
-        <tr>
+        </tr>-->
+        <!-- <tr>
           <td><%= label f, :with_tags, "Has tags" %></td>
           <td><%= multiple_select f, :with_tags, Enum.map(@tags, & {&1.name, &1.id}), selected: @filters["with_tags"] || [], class: "form-control" %></td>
         </tr>
         <tr>
           <td><%= label f, :without_tags, "Does not have tags" %></td>
           <td><%= multiple_select f, :without_tags, Enum.map(@tags, & {&1.name, &1.id}), selected: @filters["without_tags"] || [], class: "form-control" %></td>
-        </tr>
-        <tr>
+        </tr>-->
+        <!-- <tr>
           <td></td>
           <td><%= submit "Filter", class: "btn btn-primary" %></td>
-        </tr>
+        </tr>-->
       </table>
     </form>
   </div>
 
-  <div style="padding-left: 50%;">
-    <table class="table expenses-list">
+  <div style="padding-left: 41%;">
+    <table class="expenses-list">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Who & what</th>
+          <th class="text-center">EUR</th>
+          <th class="text-center">USD</th>
+          <th></th>
+        </tr>
+      </thead>
       <tbody>
         <%= for expense <- @expenses do %>
           <% new_class = if @newest_expense_id == expense.id, do: "expense-row--new", else: "" %>
           <%# Remember, any phx-hook elements must have an ID. %>
           <tr id="expense-row-<%= expense.id %>" class="expense-row <%= new_class %>" phx-hook="ExpenseRow">
             <td><%= expense.date %></td>
-            <td><%= expense.description %></td>
-            <td><%= expense.amount_eur %></td>
-            <td><%= expense.amount_eur |> Money.eur_to_usd() %></td>
+            <td style="min-width: 200px;"><%= expense.description %></td>
+            <td class="<%= primary_class(expense, "eur") %>">
+              €<%= expense.amount_eur_cents |> Money.to_s() %>
+            </td>
+            <td class="<%= primary_class(expense, "usd") %>">
+              $<%= expense.amount_eur_cents |> Money.eur_to_usd() |> Money.to_s() %>
+            </td>
             <td>action links</td>
           </tr>
         <% end %>

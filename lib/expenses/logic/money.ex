@@ -1,13 +1,21 @@
 defmodule Expenses.Money do
-  def cents_to_dollars(cents) do
-    (cents * 1.0 / 100) |> Float.round(2)
+  def eur_to_usd(cents) when is_integer(cents) do
+    (cents * 1.1) |> round()
   end
 
-  def eur_to_usd(eur) do
-    (eur * 1.1) |> Float.round(2)
+  def usd_to_eur(cents) when is_integer(cents) do
+    (cents * 1.0 / 1.1) |> round()
   end
 
-  def usd_to_eur(usd) do
-    (usd * 1.0 / 1.1) |> Float.round(2)
+  def to_s(cents) when is_integer(cents) do
+    dollars = floor(cents * 1.0 / 100)
+    cents = cents - (dollars * 100)
+    cents = String.pad_leading("#{cents}", 2, "0")
+    "#{dollars}.#{cents}"
+  end
+
+  def to_cents(dollars_string) do
+    {float, _} = Float.parse(dollars_string)
+    round(float * 100)
   end
 end
