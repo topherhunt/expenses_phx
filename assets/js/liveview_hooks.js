@@ -1,5 +1,7 @@
 // See https://hexdocs.pm/phoenix_live_view/0.6.0/Phoenix.LiveView.html#module-js-interop-and-client-controlled-dom
 
+import $ from 'jquery'
+
 let Hooks = {}
 
 Hooks.ExpenseRow = {
@@ -11,9 +13,11 @@ Hooks.ExpenseRow = {
   }
 }
 
-Hooks.NewExpenseDescription = {
-  updated() {
-    this.el.focus()
+Hooks.NewExpenseForm = {
+  mounted() {
+    $('#new-expense-form').on('submit', function(){
+      $('#new-expense-description').focus()
+    })
   }
 }
 

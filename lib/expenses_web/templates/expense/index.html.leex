@@ -1,12 +1,12 @@
 <div style="position: relative;">
   <div style="position: absolute; top: 0px; left: 0px; width: 40%; overflow: auto;">
-    <%= f = form_for @new_changeset, "#", [phx_submit: "create_expense"] %>
+    <%= f = form_for @new_changeset, "#", [id: "new-expense-form", phx_submit: "create_expense", phx_hook: "NewExpenseForm"] %>
       <h3>Add an expense</h3>
       <table>
         <tr>
-          <td><%= label f, :description, "Who & what?" %></td>
+          <td><%= label f, :description, "Who & what?", for: "new-expense-description" %></td>
           <td>
-            <%= text_input f, :description, class: "form-control", style: "min-width: 300px;", phx_hook: "NewExpenseDescription" %>
+            <%= text_input f, :description, class: "form-control", id: "new-expense-description", style: "min-width: 300px;" %>
             <%= error_tag f, :description %>
           </td>
         </tr>
