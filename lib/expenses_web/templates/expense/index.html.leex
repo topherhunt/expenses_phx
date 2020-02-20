@@ -42,44 +42,24 @@
     <%= f = form_for :filters, "#", [phx_change: "filter_expenses", phx_submit: "filter_expenses", id: "filter-form"] %>
       <table>
         <tr>
-          <th>Date</th>
+          <td>From date</td>
+          <td><%= date_input f, :date_gte, class: "form-control", value: @filters["date_gte"] %></td>
         </tr>
         <tr>
-          <td>
-            <div class="input-group">
-              <div class="input-group-prepend"><span class="input-group-text">From</span></div>
-              <%= text_input f, :date_gte, class: "form-control", value: @filters["date_gte"], placeholder: Date.utc_today() %>
-            </div>
-          </td>
-          <td>
-            <div class="input-group">
-              <div class="input-group-prepend"><span class="input-group-text">To</span></div>
-              <%= text_input f, :date_gte, class: "form-control", value: @filters["date_lte"], placeholder: Date.utc_today() %>
-            </div>
-          </td>
+          <td>To date</td>
+          <td><%= date_input f, :date_gte, class: "form-control", value: @filters["date_lte"] %></td>
         </tr>
         <tr>
-          <th>Amount</th>
+          <td>Min amount (€)</td>
+          <td><%= text_input f, :amount_gte, class: "form-control", value: @filters["amount_gte"], placeholder: "0.00" %></td>
         </tr>
         <tr>
-          <td>
-            <div class="input-group">
-              <div class="input-group-prepend"><span class="input-group-text">Min €</span></div>
-              <%= text_input f, :amount_gte, class: "form-control", value: @filters["amount_gte"], placeholder: "0.00" %>
-            </div>
-          </td>
-          <td>
-            <div class="input-group">
-              <div class="input-group-prepend"><span class="input-group-text">Max €</span></div>
-              <%= text_input f, :amount_lte, class: "form-control", value: @filters["amount_lte"], placeholder: "1000.00" %>
-            </div>
-          </td>
+          <td>Max amount (€)</td>
+          <td><%= text_input f, :amount_lte, class: "form-control", value: @filters["amount_lte"], placeholder: "1000.00" %></td>
         </tr>
         <tr>
-          <th colspan="2">Vendor / description</th>
-        </tr>
-        <tr>
-          <td colspan="2"><%= text_input f, :description_contains, class: "form-control", value: @filters["description_contains"] %></td>
+          <td>Desc.</td>
+          <td><%= text_input f, :description_contains, class: "form-control", value: @filters["description_contains"] %></td>
         </tr>
         <!-- <tr>
           <td><%= label f, :date_gte, "From date" %></td>
