@@ -14,7 +14,7 @@ defmodule Expenses.Money do
     "#{dollars}.#{cents}"
   end
 
-  def to_cents(dollars_string) do
+  def to_cents(dollars_string) when is_binary(dollars_string) do
     {float, _} = Float.parse(dollars_string)
     round(float * 100)
   end

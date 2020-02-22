@@ -1,0 +1,25 @@
+<h1>Tag details</h1>
+
+<table class="table" style="width: auto;">
+  <tr>
+    <th>Name</th>
+    <td><%= @tag.name %></td>
+  </tr>
+  <tr>
+    <th>Color</th>
+    <td># <%= @tag.color %></td>
+    <td><div style="height: 1.5em; width: 1.5em; border-radius: 0.5em; background-color: #<%= @tag.color %>;"></div></td>
+  </tr>
+  <tr>
+    <th># entries</th>
+    <td><%= length @tag.taggings %></td>
+  </tr>
+  <tr>
+    <th></th>
+    <td colspan="2">
+      <%= link "edit", to: Routes.tag_path(@conn, :edit, @tag) %> &nbsp;
+      <%= link "delete", to: Routes.tag_path(@conn, :delete, @tag), method: :delete, class: "text-danger", data: [confirm: "Deleting the tag will also remove it from #{length(@tag.taggings)} expenses. This can't be undone. Really delete?"] %> &nbsp;
+      <%= link "+ add another", to: Routes.tag_path(@conn, :new) %>
+    </td>
+  </tr>
+</table>

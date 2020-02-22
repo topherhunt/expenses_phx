@@ -1,0 +1,31 @@
+<h1>New tag</h1>
+
+<%= form_for @changeset, Routes.tag_path(@conn, :create), [method: :post], fn f -> %>
+  <div class="form-group">
+    <%= label f, :name %>
+    <%= text_input f, :name, class: "form-control" %>
+    <%= error_tag f, :name %>
+  </div>
+  <div class="form-group">
+    <%= label f, :color %>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text">#</span>
+      </div>
+      <%= text_input f, :color, class: "form-control js-set-color-preview", placeholder: "ee6644" %>
+      <div class="input-group-append">
+        <div class="input-group-text js-color-preview" style="background-color: #eee;"></div>
+      </div>
+    </div>
+    <div>
+      <%= for color <- @colors do %>
+        <a href="#" class="js-set-tag-color" data-color="<%= color %>">#<%= color %></a> &nbsp;
+      <% end %>
+    </div>
+    <%= error_tag f, :color %>
+  </div>
+  <div class="form-group">
+    <%= submit "Save", class: "btn btn-primary" %>
+    <%= link "cancel", to: Routes.tag_path(@conn, :index), class: "btn btn-link" %>
+  </div>
+<% end %>

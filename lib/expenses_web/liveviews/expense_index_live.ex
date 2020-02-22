@@ -13,7 +13,7 @@ defmodule ExpensesWeb.ExpenseIndexLive do
   def mount(_params, %{"user_id" => user_id} = _session, socket) do
     current_user = Repo.get!(Data.User, user_id)
     tags = Ecto.assoc(current_user, :tags) |> order_by([t], t.name) |> Repo.all()
-    default_filters = %{"date_gte" => Date.utc_today() |> Timex.beginning_of_year()}
+    default_filters = %{"date_gte" => "#{beginning_of_year()}"}
 
     socket = assign(socket,
       current_user: current_user,
@@ -33,8 +33,8 @@ defmodule ExpensesWeb.ExpenseIndexLive do
   #
 
   def handle_event("create_expense", %{"expense" => expense_params}, socket) do
-    expense_params = Map.put(expense_params, "user_id", socket.assigns.current_user.id)
-    case Data.insert_expense(expense_params) do
+    user = socket.assigns.current_user
+    case Data.insert_expense(%Expense{user_id: user.id}, expense_params, :owner) do
       {:ok, expense} ->
 
         socket =
@@ -63,14 +63,25 @@ defmodule ExpensesWeb.ExpenseIndexLive do
   # Internal
   #
 
+  defp beginning_of_year, do: Date.utc_today() |> Timex.beginning_of_year()
+
   defp new_changeset(params) do
     params = Map.take(params, ["date", "orig_currency"])
-    Data.expense_changeset(%Expense{}, params)
+    Expense.changeset(%Expense{}, params, :owner)
   end
 
   defp load_expenses(socket) do
     user = socket.assigns.current_user
-    filters = Repo.prepare_filters(socket.assigns.filters, allowed: ~w(date_gte date_lte description_contains amount_lte amount_gte with_tags without_tags))
+
+    filters = Repo.cast_filters(socket.assigns.filters, [
+      date_gte: :date,
+      date_lte: :date,
+      description: :string,
+      amount_lte: :currency,
+      amount_gte: :currency,
+      with_tags: {:array, :string},
+      without_tags: {:array, :string}
+    ])
 
     expenses =
       Expense

@@ -1,16 +1,18 @@
 defmodule Expenses.Factory do
   alias Expenses.Data
+  alias Expenses.Data.User
 
   def insert_user(params \\ %{}) do
     params = cast(params, [:name, :email, :confirmed_at])
     uuid = random_uuid()
-
-    Data.insert_user!(%{
+    attrs = %{
       name: Map.get(params, :name, "User #{}"),
       email: String.downcase(Map.get(params, :email, "user_#{uuid}@example.com")),
       password: "password",
       confirmed_at: Map.get(params, :confirmed_at, DateTime.utc_now())
-    }, :admin)
+    }
+
+    {:ok, _} = Data.insert_user(%User{}, attrs, :admin)
   end
 
   def insert_login_try(params \\ %{}) do

@@ -1,7 +1,5 @@
 defmodule Expenses.Repo do
-  use Ecto.Repo,
-    otp_app: :expenses,
-    adapter: Ecto.Adapters.Postgres
+  use Ecto.Repo, otp_app: :expenses, adapter: Ecto.Adapters.Postgres
   import Ecto.Query
 
   def count(query), do: query |> select([t], count(t.id)) |> one()
@@ -9,34 +7,28 @@ defmodule Expenses.Repo do
   def first(query), do: query |> limit(1) |> one()
   def first!(query), do: query |> limit(1) |> one!()
 
-  # Unwraps the result tuple and blows up if an error occurred.
-  def ensure_success(result) do
-    case result do
-      {:ok, object} -> object
-      {:error, changeset} -> raise Ecto.InvalidChangesetError, changeset: changeset
-    end
-  end
-
-  # Use this to sanitize user-submitted filters against a whitelist so you
-  # can include those filters in a query.
-  # Returns a kw list of filter instructions like [email_contains: "blah"].
-  # All keys are atoms. All values are (assumed to be) strings.
-  def prepare_filters(filters, opts) do
-    allowed = Keyword.fetch!(opts, :allowed)
-
-    cleaned = Enum.reduce(allowed, [], fn field, kwlist ->
-      value = filters[field]
-      if value != nil && value != "" do
-        Keyword.put(kwlist, String.to_atom(field), value)
+  # Sanitizes and casts user-submitted filters against the field+type schema you provide.
+  # Returns a kwlist that can be passed to a query builder function.
+  # Usage:
+  #   raw = %{"date_gte" => "2020-01-18"}
+  #   filters = Repo.cast_filters(raw, [date_gte: :date, name: :string])
+  #   => [date_gte: ~D[2020-01-18]]
+  def cast_filters(raw_filters, fields_and_types) do
+    Enum.reduce(fields_and_types, [], fn({field, type}, filters) ->
+      if raw_value = Map.get(raw_filters, Atom.to_string(field)) do
+        filters |> Keyword.put(field, cast_value(raw_value, type))
       else
-        kwlist
+        filters
       end
     end)
+  end
 
-    if cleaned != [] do
-      cleaned
-    else
-      opts[:default] || []
+  defp cast_value(raw_value, type) do
+    case type do
+      :string -> raw_value
+      :date -> Date.from_iso8601!(raw_value)
+      :currency -> Expenses.Money.to_cents(raw_value)
+      {:array, :string} -> raw_value |> Enum.map(& &1) # verify it's an array
     end
   end
 

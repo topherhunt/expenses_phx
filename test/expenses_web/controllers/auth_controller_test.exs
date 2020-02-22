@@ -234,7 +234,7 @@ defmodule ExpensesWeb.AuthControllerTest do
 
       assert redirected_to(conn) == Routes.auth_path(conn, :login)
       assert flash_messages(conn) == "Password updated. Please log in."
-      assert Data.get_user!(user.id) |> Data.password_correct?("password2")
+      assert Repo.get!(User, user.id) |> Data.password_correct?("password2")
     end
 
     test "rejects you if the token is invalid", %{conn: conn} do
@@ -248,7 +248,7 @@ defmodule ExpensesWeb.AuthControllerTest do
 
       assert redirected_to(conn) == Routes.auth_path(conn, :request_password_reset)
       assert flash_messages(conn) == "Sorry, something went wrong. Please try again."
-      assert !(Data.get_user!(user.id) |> Data.password_correct?("password2"))
+      assert !(Repo.get!(User, user.id) |> Data.password_correct?("password2"))
     end
 
     test "rejects you if the new password is invalid", %{conn: conn} do
@@ -261,7 +261,7 @@ defmodule ExpensesWeb.AuthControllerTest do
       })
 
       assert_text conn, "doesn't match password"
-      assert !(Data.get_user!(user.id) |> Data.password_correct?("password2"))
+      assert !Data.password_correct?(Repo.get!(User, user.id), "password2")
     end
   end
 end

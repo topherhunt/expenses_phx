@@ -26,6 +26,10 @@ defmodule ExpensesWeb do
       import ExpensesWeb.Gettext
       import ExpensesWeb.SentryPlugs
       alias ExpensesWeb.Router.Helpers, as: Routes
+
+      # I'll make custom queries often enough that I might as well import these globally
+      import Ecto.Query
+      alias Expenses.Repo
     end
   end
 

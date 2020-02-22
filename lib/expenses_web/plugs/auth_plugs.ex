@@ -7,7 +7,9 @@ defmodule ExpensesWeb.AuthPlugs do
       put_session: 3,
       configure_session: 2
     ]
+  alias Expenses.Repo
   alias Expenses.Data
+  alias Expenses.Data.User
 
   #
   # Plugs
@@ -67,12 +69,13 @@ defmodule ExpensesWeb.AuthPlugs do
     # To support "Log out of all sessions", we'd look up the user here by both id and a
     # session_token which we can scramble to destroy all login sessions.
     user_id = get_session(conn, :user_id)
-    Data.get_user_by(id: user_id)
+    Repo.get(User, user_id)
   end
 
   defp set_assigned_user(conn, user) do
-    if user.last_visit_date != Date.utc_today() do
-      Data.update_user!(user, %{last_visit_date: Date.utc_today()}, :admin)
+    today = Date.utc_today()
+    if user.last_visit_date != today do
+      {:ok, _} = Data.update_user(user, %{last_visit_date: today}, :admin)
     end
 
     conn

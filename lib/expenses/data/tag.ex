@@ -14,19 +14,28 @@ defmodule Expenses.Data.Tag do
     timestamps()
   end
 
-  def changeset(record, params \\ %{}) do
-    record
+  def changeset(struct, params, :admin) do
+    struct
     |> cast(params, [:user_id, :name, :color])
     |> validate_required([:user_id, :name, :color])
   end
 
+  def changeset(struct, params, :owner) do
+    struct
+    |> cast(params, [:name, :color])
+    |> changeset(%{}, :admin)
+  end
+
   #
-  # Filters
+  # Query builders
   #
 
-  def apply_filters(starting_query, filters) do
-    Enum.reduce(filters, starting_query, fn {k, v}, query -> filter(query, k, v) end)
+  def filter(orig_query \\ __MODULE__, filters) when is_list(filters) do
+    Enum.reduce(filters, orig_query, fn {k, v}, query -> filter(query, k, v) end)
   end
 
   def filter(query, :id, id), do: where(query, [t], t.id == ^id)
+  def filter(query, :user, user), do: where(query, [t], t.user_id == ^user.id)
+  def filter(query, :order_by, :name), do: order_by(query, [t], asc: t.name)
+  def filter(query, :preload, preloads), do: preload(query, ^preloads)
 end

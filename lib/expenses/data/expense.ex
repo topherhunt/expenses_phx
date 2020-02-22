@@ -19,14 +19,26 @@ defmodule Expenses.Data.Expense do
     timestamps()
   end
 
-  def changeset(record, params \\ %{}) do
-    record
-    |> cast(params, [:user_id, :date, :description, :orig_currency, :orig_amount, :orig_amount_cents, :amount_eur_cents])
+  @all_fields [:user_id, :date, :description, :orig_currency, :orig_amount, :orig_amount_cents, :amount_eur_cents]
+
+  def changeset(struct, params, :admin) do
+    struct
+    |> cast(params, @all_fields)
     |> populate_orig_amount_cents()
     |> populate_amount_eur_cents()
-    |> validate_required([:user_id, :date, :description, :orig_currency, :orig_amount_cents])
+    |> validate_required(@all_fields -- [:orig_currency])
     |> validate_inclusion(:orig_currency, ["eur", "usd"])
   end
+
+  def changeset(struct, params, :owner) do
+    struct
+    |> cast(params, @all_fields -- [:user_id])
+    |> changeset(%{}, :admin)
+  end
+
+  #
+  # Validation helpers
+  #
 
   defp populate_orig_amount_cents(changeset) do
     orig_amount = orig_amount = get_change(changeset, :orig_amount)
@@ -58,16 +70,16 @@ defmodule Expenses.Data.Expense do
   # Filters
   #
 
-  # e.g. Expense |> Expense.filter(date_gte: params["date"]) |> Repo.first()
-  def filter(orig_query, filters) when is_list(filters) do
-    Enum.reduce(filters, orig_query, fn {key, val}, query -> f(query, key, val) end)
+  # e.g. Expense.filter(date_gte: params["date"]) |> Repo.first()
+  def filter(orig_query \\ __MODULE__, filters) when is_list(filters) do
+    Enum.reduce(filters, orig_query, fn {k, v}, query -> f(query, k, v) end)
   end
 
   defp f(q, :id, id), do: where(q, [t], t.id == ^id)
   defp f(q, :user, user), do: where(q, [t], t.user_id == ^user.id)
   defp f(q, :date_gte, date), do: where(q, [t], t.date >= ^date)
   defp f(q, :date_lte, date), do: where(q, [t], t.date <= ^date)
-  defp f(q, :amount_gte, eur), do: where(q, [t], t.amount_eur_cents >= ^Money.to_cents(eur))
-  defp f(q, :amount_lte, eur), do: where(q, [t], t.amount_eur_cents <= ^Money.to_cents(eur))
-  defp f(q, :description_contains, s), do: where(q, [t], ilike(t.description, ^"%#{s}%"))
+  defp f(q, :amount_gte, eur_cents), do: where(q, [t], t.amount_eur_cents >= ^eur_cents)
+  defp f(q, :amount_lte, eur_cents), do: where(q, [t], t.amount_eur_cents <= ^eur_cents)
+  defp f(q, :description, s), do: where(q, [t], ilike(t.description, ^"%#{s}%"))
 end

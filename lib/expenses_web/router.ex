@@ -46,6 +46,8 @@ defmodule ExpensesWeb.Router do
 
     get "/expenses/live", ExpenseController, :index_live
     get "/expenses/old", ExpenseController, :index_old
+
+    resources "/tags", TagController
   end
 
   # Other scopes may use custom stacks.

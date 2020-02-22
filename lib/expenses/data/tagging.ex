@@ -10,8 +10,8 @@ defmodule Expenses.Data.Tagging do
     timestamps()
   end
 
-  def changeset(record, params \\ %{}) do
-    record
+  def changeset(struct, params, :owner) do
+    struct
     |> cast(params, [:expense_id, :tag_id])
     |> validate_required([:expense_id, :tag_id])
   end
@@ -20,8 +20,8 @@ defmodule Expenses.Data.Tagging do
   # Filters
   #
 
-  def apply_filters(starting_query, filters) do
-    Enum.reduce(filters, starting_query, fn {k, v}, query -> filter(query, k, v) end)
+  def filter(orig_query \\ __MODULE__, filters) when is_list(filters) do
+    Enum.reduce(filters, orig_query, fn {k, v}, query -> filter(query, k, v) end)
   end
 
   def filter(query, :id, id), do: where(query, [t], t.id == ^id)

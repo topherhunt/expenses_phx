@@ -31,5 +31,6 @@ defmodule Expenses.Repo.Migrations.CreateExpensesAndTagsAndTaggings do
 
     create index(:taggings, :expense_id)
     create index(:taggings, :tag_id)
+    # create unique_index(:taggings, [:tag_id, :expense_id])
   end
 end

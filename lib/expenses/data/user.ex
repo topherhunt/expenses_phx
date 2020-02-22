@@ -18,8 +18,8 @@ defmodule Expenses.Data.User do
     has_many :tags, Data.Tag
   end
 
-  def admin_changeset(record, params \\ %{}) do
-    record
+  def changeset(struct, params, :admin) do
+    struct
     |> cast(params, [:name, :email, :password, :confirmed_at, :last_visit_date])
     |> validate_required([:name, :email])
     |> validate_length(:password, min: 8, max: 50)
@@ -28,22 +28,26 @@ defmodule Expenses.Data.User do
     |> hash_password_if_present()
   end
 
-  def owner_changeset(record, params \\ %{}) do
-    record
+  def changeset(struct, params, :owner) do
+    struct
     |> cast(params, [:name, :email, :password, :password_confirmation, :current_password])
     |> disallow_email_change()
     |> validate_password_confirmation()
     |> validate_current_password()
-    |> admin_changeset(%{}) # hash password, require fields, etc.
+    |> changeset(%{}, :admin) # hash password, require fields, etc.
   end
 
   # We need a special context for pw resets because current_password isn't required there
-  def password_reset_changeset(record, params \\ %{}) do
-    record
+  def changeset(%__MODULE__{} = struct, params, :password_reset) do
+    struct
     |> cast(params, [:password, :password_confirmation])
     |> validate_password_confirmation()
-    |> admin_changeset(%{}) # hash password, require fields, etc.
+    |> changeset(%{}, :admin) # hash password, require fields, etc.
   end
+
+  #
+  # Validation helpers
+  #
 
   defp hash_password_if_present(changeset) do
     if password = get_change(changeset, :password) do
@@ -104,8 +108,8 @@ defmodule Expenses.Data.User do
   # Filters
   #
 
-  def apply_filters(starting_query, filters) do
-    Enum.reduce(filters, starting_query, fn {k, v}, query -> filter(query, k, v) end)
+  def filter(orig_query \\ __MODULE__, filters) when is_list(filters) do
+    Enum.reduce(filters, orig_query, fn {k, v}, query -> filter(query, k, v) end)
   end
 
   def filter(query, :id, id), do: where(query, [t], t.id == ^id)

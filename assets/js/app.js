@@ -18,3 +18,4 @@ import "phoenix_html"
 
 import "./liveview"
 import "./jquery_utilities"
+import "./tags"
