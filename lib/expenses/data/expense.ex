@@ -82,4 +82,20 @@ defmodule Expenses.Data.Expense do
   defp f(q, :amount_gte, eur_cents), do: where(q, [t], t.amount_eur_cents >= ^eur_cents)
   defp f(q, :amount_lte, eur_cents), do: where(q, [t], t.amount_eur_cents <= ^eur_cents)
   defp f(q, :description, s), do: where(q, [t], ilike(t.description, ^"%#{s}%"))
+
+  defp f(q, :has_tag_id, tag_id) do
+    where(q, [e], fragment("EXISTS (SELECT * FROM taggings ti WHERE ti.expense_id = ? AND ti.tag_id = ?)", e.id, ^tag_id))
+  end
+
+  defp f(orig_query, :has_all_tag_ids, tag_ids) do
+    Enum.reduce(tag_ids, orig_query, fn tag_id, q -> f(q, :has_tag_id, tag_id) end)
+  end
+
+  defp f(q, :has_any_tag_id, tag_ids) do
+    where(q, [e], fragment("EXISTS (SELECT * FROM taggings ti WHERE ti.expense_id = ? AND ti.tag_id = ANY(?))", e.id, ^tag_ids))
+  end
+
+  defp f(q, :has_no_tag_id, tag_ids) do
+    where(q, [e], fragment("NOT EXISTS (SELECT * FROM taggings ti WHERE ti.expense_id = ? AND ti.tag_id = ANY(?))", e.id, ^tag_ids))
+  end
 end

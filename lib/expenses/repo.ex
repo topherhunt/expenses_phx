@@ -1,11 +1,28 @@
 defmodule Expenses.Repo do
   use Ecto.Repo, otp_app: :expenses, adapter: Ecto.Adapters.Postgres
   import Ecto.Query
+  alias Expenses.Helpers, as: H
+  alias Expenses.Money
 
   def count(query), do: query |> select([t], count(t.id)) |> one()
   def any?(query), do: count(query) >= 1
   def first(query), do: query |> limit(1) |> one()
   def first!(query), do: query |> limit(1) |> one!()
+
+  def debug(query) do
+    {sql, args} = Ecto.Adapters.SQL.to_sql(:all, __MODULE__, query)
+    IO.puts "Query: #{sql}"
+    IO.inspect(args, label: "Query args")
+    query
+  end
+
+  # Unwraps the result tuple and blows up if an error occurred.
+  def unwrap!(result) do
+    case result do
+      {:ok, object} -> object
+      {:error, changeset} -> raise Ecto.InvalidChangesetError, changeset: changeset
+    end
+  end
 
   # Sanitizes and casts user-submitted filters against the field+type schema you provide.
   # Returns a kwlist that can be passed to a query builder function.
@@ -15,20 +32,22 @@ defmodule Expenses.Repo do
   #   => [date_gte: ~D[2020-01-18]]
   def cast_filters(raw_filters, fields_and_types) do
     Enum.reduce(fields_and_types, [], fn({field, type}, filters) ->
-      if raw_value = Map.get(raw_filters, Atom.to_string(field)) do
+      if raw_value = raw_filters |> Map.get(Atom.to_string(field)) |> H.presence() do
         filters |> Keyword.put(field, cast_value(raw_value, type))
       else
         filters
       end
     end)
+    |> IO.inspect(label: "cast_filters result")
   end
 
   defp cast_value(raw_value, type) do
     case type do
       :string -> raw_value
-      :date -> Date.from_iso8601!(raw_value)
-      :currency -> Expenses.Money.to_cents(raw_value)
-      {:array, :string} -> raw_value |> Enum.map(& &1) # verify it's an array
+      :integer -> raw_value |> String.to_integer()
+      :currency -> raw_value |> Money.to_cents()
+      :date -> raw_value |> Date.from_iso8601!()
+      {:array, subtype} -> raw_value |> Enum.map(& cast_value(&1, subtype))
     end
   end
 

@@ -1,7 +1,7 @@
-// See https://hexdocs.pm/phoenix_live_view/0.6.0/Phoenix.LiveView.html#module-js-interop-and-client-controlled-dom
-
 import $ from 'jquery'
+import 'select2'
 
+// See https://hexdocs.pm/phoenix_live_view/0.6.0/Phoenix.LiveView.html#module-js-interop-and-client-controlled-dom
 let Hooks = {}
 
 Hooks.ExpenseRow = {
@@ -19,6 +19,33 @@ Hooks.NewExpenseForm = {
       $('#new-expense-description').focus()
     })
   }
+}
+
+Hooks.FilterForm = {
+  mounted() {
+    let context = this
+    $('#filter-form').on('change', function(e){
+      // let data = $('#filter-form')
+      //   .serializeArray()
+      //   .reduce(function(acc, entry){ acc[entry.name] = entry.value; return acc }, {})
+      // context.pushEvent("filter_expenses", data)
+      // console.log("#filter-form change detected")
+    })
+  }
+}
+
+Hooks.Select2 = {
+  mounted() {
+    initSelect2(this.el)
+  },
+  // I could also wrap each select2 in <div phx-update="ignore"></div> to prevent updates
+  updated() {
+    initSelect2(this.el)
+  }
+}
+
+function initSelect2(element) {
+  $(element).select2({width: '100%'});
 }
 
 export default Hooks

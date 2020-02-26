@@ -1,5 +1,6 @@
 defmodule ExpensesWeb.ExpenseView do
   use ExpensesWeb, :view
+  import Ecto.Changeset
 
   # Old code for pretty tags dropdown:
   # <%= for tag <- @tags do %>

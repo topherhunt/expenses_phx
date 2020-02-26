@@ -30,6 +30,10 @@
           </td>
         </tr>
         <tr>
+          <td><%= label f, :tag_ids %></td>
+          <td><%= multiple_select f, :tag_ids, Enum.map(@tags, & {&1.name, &1.id}), selected: get_change(@new_changeset, :tag_ids), phx_hook: "Select2" %></td>
+        </tr>
+        <tr>
           <td></td>
           <td><%= submit "Add", class: "btn btn-primary" %></td>
         </tr>
@@ -39,7 +43,7 @@
     <hr>
 
     <h3>Filters</h3>
-    <%= f = form_for :filters, "#", [phx_change: "filter_expenses", phx_submit: "filter_expenses", id: "filter-form"] %>
+    <%= f = form_for :filters, "#", [id: "filter-form", phx_change: "filter_expenses", phx_submit: "filter_expenses", phx_hook: "FilterForm"] %>
       <table>
         <tr>
           <td>From date</td>
@@ -47,7 +51,7 @@
         </tr>
         <tr>
           <td>To date</td>
-          <td><%= date_input f, :date_gte, class: "form-control", value: @filters["date_lte"] %></td>
+          <td><%= date_input f, :date_lte, class: "form-control", value: @filters["date_lte"] %></td>
         </tr>
         <tr>
           <td>Min amount (€)</td>
@@ -59,37 +63,28 @@
         </tr>
         <tr>
           <td>Desc.</td>
-          <td><%= text_input f, :description_contains, class: "form-control", value: @filters["description_contains"] %></td>
-        </tr>
-        <!-- <tr>
-          <td><%= label f, :date_gte, "From date" %></td>
-          <td><%= date_input f, :date_gte, class: "form-control", value: @filters["date_gte"] %></td>
+          <td><%= text_input f, :description, class: "form-control", value: @filters["description"] %></td>
         </tr>
         <tr>
-          <td><%= label f, :date_lte, "Until date" %></td>
-          <td><%= date_input f, :date_lte, class: "form-control", value: @filters["date_lte"] %></td>
-        </tr> -->
-        <!-- <tr>
-          <td><%= label f, :amount_gte, "Min amount (EUR)" %></td>
-          <td><%= text_input f, :amount_gte, class: "form-control", value: @filters["amount_gte"], placeholder: "0.00" %></td>
+          <td>Has ALL tags</td>
+          <td>
+            <%= multiple_select f, :has_all_tag_ids, Enum.map(@tags, & {&1.name, &1.id}), selected: @filters["has_all_tag_ids"], phx_hook: "Select2" %>
+          </td>
         </tr>
         <tr>
-          <td><%= label f, :amount_lte, "Max amount (EUR)" %></td>
-          <td><%= text_input f, :amount_lte, class: "form-control", value: @filters["amount_lte"], placeholder: "1000.00" %></td>
-        </tr>-->
-        <!-- <tr>
-          <td><%= label f, :with_tags, "Has tags" %></td>
-          <td><%= multiple_select f, :with_tags, Enum.map(@tags, & {&1.name, &1.id}), selected: @filters["with_tags"] || [], class: "form-control" %></td>
+          <td>Has ANY tag</td>
+          <td>
+            <%= multiple_select f, :has_any_tag_id, Enum.map(@tags, & {&1.name, &1.id}), selected: @filters["has_any_tag_id"], phx_hook: "Select2" %>
+          </td>
         </tr>
         <tr>
-          <td><%= label f, :without_tags, "Does not have tags" %></td>
-          <td><%= multiple_select f, :without_tags, Enum.map(@tags, & {&1.name, &1.id}), selected: @filters["without_tags"] || [], class: "form-control" %></td>
-        </tr>-->
-        <!-- <tr>
-          <td></td>
-          <td><%= submit "Filter", class: "btn btn-primary" %></td>
-        </tr>-->
+          <td>Has NO tags</td>
+          <td>
+            <%= multiple_select f, :has_no_tag_id, Enum.map(@tags, & {&1.name, &1.id}), selected: @filters["has_no_tag_id"], phx_hook: "Select2" %>
+          </td>
+        </tr>
       </table>
+      <%= submit "Submit", class: "u-hidden" %>
     </form>
   </div>
 
@@ -111,13 +106,18 @@
           <tr id="expense-row-<%= expense.id %>" class="expense-row <%= new_class %>" phx-hook="ExpenseRow">
             <td><%= expense.date %></td>
             <td style="min-width: 200px;"><%= expense.description %></td>
-            <td class="<%= primary_class(expense, "eur") %>">
+            <td class="text-right <%= primary_class(expense, "eur") %>">
               €<%= expense.amount_eur_cents |> Money.to_s() %>
             </td>
-            <td class="<%= primary_class(expense, "usd") %>">
+            <td class="text-right <%= primary_class(expense, "usd") %>">
               $<%= expense.amount_eur_cents |> Money.eur_to_usd() |> Money.to_s() %>
             </td>
-            <td>action links</td>
+            <td>
+              <%= for tag <- expense.tags do %>
+                <span style="border: 1px solid #<%= tag.color %>; color: #<%= tag.color %>; border-radius: 0.25em; padding: 0px 2px;"><%= tag.name %></span>
+              <% end %>
+            </td>
+            <td><i class="icon">edit</i> &nbsp; <i class="icon">delete_forever</i></td>
           </tr>
         <% end %>
       </tbody>

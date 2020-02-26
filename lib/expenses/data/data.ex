@@ -11,10 +11,12 @@ defmodule Expenses.Data do
   # :admin or :owner. :admin scope allows updates to all fields and should never be used
   # to pass user-defined params. :owner scope allows updates to only those fields which
   # should be updatable by the authed user who owns that record.
+  def insert_user!(a \\ %User{}, b, c), do: insert_user(a, b, c) |> Repo.unwrap!()
   def insert_user(struct \\ %User{}, params, scope) do
     struct |> User.changeset(params, scope) |> Repo.insert()
   end
 
+  def update_user!(%User{} = a, b, c), do: update_user(a, b, c) |> Repo.unwrap!()
   def update_user(%User{} = struct, params, scope) do
     struct |> User.changeset(params, scope) |> Repo.update()
   end
@@ -114,10 +116,12 @@ defmodule Expenses.Data do
   # Expenses
   #
 
+  def insert_expense!(a \\ %Expense{}, b, c), do: insert_expense(a, b, c) |> Repo.unwrap!()
   def insert_expense(struct \\ %Expense{}, params, scope) do
     struct |> Expense.changeset(params, scope) |> Repo.insert()
   end
 
+  def update_expense!(%Expense{} = a, b, c), do: update_expense(a, b, c) |> Repo.unwrap!()
   def update_expense(%Expense{} = struct, params, scope) do
     struct |> Expense.changeset(params, scope) |> Repo.update()
   end
@@ -128,10 +132,12 @@ defmodule Expenses.Data do
   # Tags
   #
 
+  def insert_tag!(a \\ %Tag{}, b, c), do: insert_tag(a, b, c) |> Repo.unwrap!()
   def insert_tag(struct \\ %Tag{}, params, scope) do
     struct |> Tag.changeset(params, scope) |> Repo.insert()
   end
 
+  def update_tag!(%Tag{} = a, b, c), do: update_tag(a, b, c) |> Repo.unwrap!()
   def update_tag(%Tag{} = struct, params, scope) do
     struct |> Tag.changeset(params, scope) |> Repo.update()
   end
@@ -142,10 +148,12 @@ defmodule Expenses.Data do
   # Taggings
   #
 
+  def insert_tagging!(a \\ %Tagging{}, b, c), do: insert_tagging(a, b, c) |> Repo.unwrap!()
   def insert_tagging(struct \\ %Tagging{}, params, scope) do
     struct |> Tagging.changeset(params, scope) |> Repo.insert()
   end
 
+  def update_tagging!(%Tagging{} = a, b, c), do: update_tagging(a, b, c) |> Repo.unwrap!()
   def update_tagging(%Tagging{} = struct, params, scope) do
     struct |> Tagging.changeset(params, scope) |> Repo.update()
   end

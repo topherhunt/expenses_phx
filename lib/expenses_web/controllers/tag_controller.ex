@@ -22,12 +22,8 @@ defmodule ExpensesWeb.TagController do
   end
 
   def create(conn, %{"tag" => tag_params}) do
-    tag_params =
-      tag_params
-      |> Map.take(["name", "color"])
-      |> Map.put("user_id", conn.assigns.current_user.id)
-
-    case Data.insert_tag(tag_params, :admin) do
+    user = conn.assigns.current_user
+    case Data.insert_tag(%Tag{user_id: user.id}, tag_params, :owner) do
       {:ok, tag} ->
         conn
         |> put_flash(:info, "Added tag \"#{tag.name}\".")

@@ -10,6 +10,7 @@ import css from "../css/app.css"
 // Import dependencies
 //
 import "phoenix_html"
+import $ from "jquery"
 
 // Import local files
 //
@@ -19,3 +20,5 @@ import "phoenix_html"
 import "./liveview"
 import "./jquery_utilities"
 import "./tags"
+
+window.$ = $
